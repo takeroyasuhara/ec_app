@@ -1,0 +1,7 @@
+<% provide(:title, 'All products') %>
+<h1>All products</h1>
+  <ul class="products">
+    <% @products.each do |product| %>
+    <li><%= link_to product.title, product %> </li>
+    <% end %>
+  </ul>

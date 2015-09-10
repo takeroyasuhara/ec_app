@@ -1,0 +1,10 @@
+<% provide(:title, @product.title) %>
+<h1>
+  <%= @product.title %>
+</h1>
+
+<h2>
+  <%= @product.description %>
+  <%= @product.price %>
+  <%= render 'addcart'%>
+</h2>
