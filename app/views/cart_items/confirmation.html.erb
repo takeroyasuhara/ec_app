@@ -1,0 +1,30 @@
+<% provide(:title, 'Confirmation') %>
+<h1>注文内容確認画面</h1>
+
+<h5>
+  <% @notification_messages.each do |i| %>
+    <li>
+      <%= p i %>
+    </li>
+  <% end %>
+</h5>
+
+<h5>
+  <ul>
+  <% sum = 0 %>
+  <% @products.each do |product| %>
+    <li>
+      <% cart_item = @cart_items.find_by(product_id: product.id) %>
+      <%= link_to product.title, product %>
+
+      価格 <%= product.price %>円
+      個数 <%= cart_item.possible_quantity %>個
+      合計 <%= product.price * cart_item.possible_quantity %>円
+      <% sum += product.price * cart_item.possible_quantity%>
+
+    </li>
+    <% end %>
+  </ul>
+  小計 <%= sum %>円
+  <%= link_to "注文確定", confirmation_path %>
+</h5>

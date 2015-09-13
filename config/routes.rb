@@ -1,14 +1,14 @@
 Rails.application.routes.draw do
 
-  get 'sessions/new'
-
-  root                  'products#index'
-  get    'signup'   =>  'users#new'
-  get    'signin'   =>  'sessions#new'
-  post   'signin'   =>  'sessions#create'
-  delete 'signout'  =>  'sessions#destroy'
+  root                      'products#index'
+  get    'signup'       =>  'users#new'
+  get    'signin'       =>  'sessions#new'
+  post   'signin'       =>  'sessions#create'
+  delete 'signout'      =>  'sessions#destroy'
   resources :users
   resources :products
+  resources :cart_items,       only: [:index, :create, :destroy, :update]
+  get    'confirmation' =>  'cart_items#confirmation'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

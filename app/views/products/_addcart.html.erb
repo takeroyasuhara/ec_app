@@ -1,5 +1,5 @@
-<%= form_for(current_user.cart_items.build(user_id: @user.id, product_id: @product.id)) do |f| %>
-  <div><%= f.hidden_field :user_id %>
+<%= form_for(current_user.cart_items.build(product_id: @product.id)) do |f| %>
+  <div><%= f.hidden_field :product_id %>
   </div>
   <%= f.submit "カート追加", class: "btn btn-large btn-primary" %>
   <% end %>

@@ -3,7 +3,7 @@
     <%= link_to "shopping site", root_path %>
     <nav>
       <ul class="nav navbar-nav navbar-right">
-        <li><%= link_to "カート内商品", '#' %></li>
+        <li><%= link_to "カート", cart_items_path %></li>
 
         <% if signed_in? %>
           <li><%= link_to "サインアウト", signout_path, method: "delete" %> </li>

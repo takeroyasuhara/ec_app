@@ -1,0 +1,39 @@
+<% provide(:title, 'All Cart Items') %>
+<h1>カート内のすべての商品</h1>
+
+<h5>
+  <% @notification_messages.each do |i| %>
+    <li>
+      <%= p i %>
+    </li>
+  <% end %>
+</h5>
+
+<h5>
+  <ul>
+  <% sum = 0 %>
+  <% @products.each do |product| %>
+    <li>
+      <% cart_item = @cart_items.find_by(product_id: product.id) %>
+      <%= link_to product.title, product %>
+
+      価格 <%= product.price %>円
+      個数 <%= cart_item.possible_quantity %>個
+      合計 <%= product.price * cart_item.possible_quantity %>円
+      <% sum += product.price * cart_item.possible_quantity%>
+
+      <%= link_to "delete", cart_item_path(cart_item.id),
+       method: :delete, data: { confirm: "You sure?" } %>
+
+      <%= form_for(cart_item) do |f| %>
+      <div><%= f.hidden_field :product_id %></div>
+
+      <%= f.text_field :possible_quantity, class: 'form-control'%>
+      <%= f.submit "数量更新", class: "btn btn-large btn-primary" %>
+      <% end %>
+    </li>
+    <% end %>
+  </ul>
+  小計 <%= sum %>円
+  <%= link_to "注文内容確認", confirmation_path %>
+</h5>

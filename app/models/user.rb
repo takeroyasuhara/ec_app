@@ -1,4 +1,10 @@
 class User < ActiveRecord::Base
+  has_many :addresses
+  has_many :cart_items
+  has_many :purchasing_products, class_name: "Product", through: :cart_items
+  has_many :order_items
+  has_many :purchased_products, class_name: "Product", through: :order_items
+
   validates :name, presence: true, length: { maximum: 50 }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, length: { maximum: 255 },
@@ -12,4 +18,6 @@ class User < ActiveRecord::Base
                                                   BCrypt::Engine.cost
     BCrypt::Password.create(string, cost: cost)
   end
+
+
 end
