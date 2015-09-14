@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get 'orders/create'
+
   root                      'products#index'
   get    'signup'       =>  'users#new'
   get    'signin'       =>  'sessions#new'
@@ -9,6 +11,7 @@ Rails.application.routes.draw do
   resources :products
   resources :cart_items,       only: [:index, :create, :destroy, :update]
   get    'confirmation' =>  'cart_items#confirmation'
+  post   'orders'       =>  'orders#create'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

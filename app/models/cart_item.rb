@@ -8,5 +8,5 @@ class CartItem < ActiveRecord::Base
   validates :asking_quantity, presence: true,
               numericality: { only_integer: true, greater_than: 0 }
   validates :possible_quantity, presence: true,
-              numericality: { only_integer: true, greater_than: 0 }
+              numericality: { only_integer: true}
 end

@@ -3,13 +3,13 @@
     <%= link_to "shopping site", root_path %>
     <nav>
       <ul class="nav navbar-nav navbar-right">
-        <li><%= link_to "カート", cart_items_path %></li>
+        <li><%= link_to "Cart", cart_items_path %></li>
 
         <% if signed_in? %>
-          <li><%= link_to "サインアウト", signout_path, method: "delete" %> </li>
+          <li><%= link_to "Sign out", signout_path, method: "delete" %> </li>
         <% else %>
-          <li><%= link_to "サインアップ ", signup_path %></li>
-          <li><%= link_to "サインイン", signin_path %></li>
+          <li><%= link_to "Sign up", signup_path %></li>
+          <li><%= link_to "Sign in", signin_path %></li>
         <% end %>
 
       </ul>

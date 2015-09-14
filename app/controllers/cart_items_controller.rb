@@ -5,7 +5,7 @@ class CartItemsController < ApplicationController
     if current_user.cart_items.find_by(product_id: product.id)
       cart_item = current_user.cart_items.find_by(product_id: product.id)
       if (cart_item.asking_quantity + asking_quantity) > product.stock_quantity
-        flash[:danger] = "在庫数が足りないため、#{product.title}をカートに入れることができません."
+        flash[:danger] = "stock shortage:#{product.title}"
       else
         cart_item.asking_quantity += asking_quantity
         cart_item.possible_quantity = cart_item.asking_quantity
@@ -13,9 +13,13 @@ class CartItemsController < ApplicationController
         flash[:success] = "#{product.title}の購入希望数を変更しました！"
       end
     else
-      current_user.cart_items.create(product_id: product.id,
-      asking_price: product.price, asking_quantity: asking_quantity, possible_quantity: asking_quantity)
-      flash[:success] = "カートに商品を入れました！"
+      if asking_quantity > product.stock_quantity
+        flash[:danger] = "stock shortage:#{product.title}"
+      else
+        current_user.cart_items.create(product_id: product.id,
+        asking_price: product.price, asking_quantity: asking_quantity, possible_quantity: asking_quantity)
+        flash[:success] = "#{product.title}: now added to your shopping cart"
+      end
     end
     redirect_to cart_items_path
   end
@@ -35,8 +39,8 @@ class CartItemsController < ApplicationController
                                     現在の価格は#{product.price}円です."
       elsif cart_item.asking_quantity > product.stock_quantity
         @notification_messages << "#{product.title}の在庫数が
-                                    カート追加時の希望購入個数(#{cart_item.asking_quantity}個)以下となりました.
-                                    現在の在庫数は#{product.stock_quantity}個です."
+                                    カート追加時の希望購入数(#{cart_item.asking_quantity}個)以下となりました.
+                                    現在の購入可能な在庫数は#{product.stock_quantity}個です."
         cart_item.possible_quantity = product.stock_quantity
         cart_item.save
       end
@@ -45,7 +49,7 @@ class CartItemsController < ApplicationController
 
   def destroy
     CartItem.find(params[:id]).destroy
-    flash[:success] = "カートから商品を削除しました！"
+    flash[:success] = "Delete item !"
     redirect_to cart_items_path
   end
 
@@ -56,13 +60,13 @@ class CartItemsController < ApplicationController
     quantity = cart_item.possible_quantity
     cart_item.asking_quantity = quantity
     if quantity == nil
-      flash[:danger] = "購入希望数に1以上の整数を半角入力してください."
+      flash[:danger] = "You should input an integer of 1 or more."
     elsif quantity > product.stock_quantity
-      flash[:danger] = "在庫が足りません.#{product.title}は#{product.stock_quantity}個まで購入できます."
+      flash[:danger] = "#{product.title}は在庫数が不足しています！"
     elsif !cart_item.save
-      flash[:danger] = "購入希望数に1以上の整数を半角入力してください."
+      flash[:danger] = "You should input an integer of 1 or more."
     else
-      flash[:success] = "#{product.title}の購入希望数を更新しました."
+      flash[:success] = "#{product.title}の購入希望数を変更しました！"
     end
     redirect_to cart_items_path
   end
@@ -74,6 +78,7 @@ class CartItemsController < ApplicationController
     @products = Product.where("id IN (#{product_ids})",
                               current_user_id: current_user.id)
     @notification_messages = []
+    @order = Order.new
     @products.each do |product|
       cart_item = @cart_items.find_by(product_id: product.id)
       if cart_item.asking_price != product.price
@@ -82,7 +87,7 @@ class CartItemsController < ApplicationController
                                     現在の価格は#{product.price}円です."
       elsif cart_item.asking_quantity > product.stock_quantity
         @notification_messages << "#{product.title}の在庫数が
-                                    カート追加時の希望購入個数(#{cart_item.asking_quantity}個)以下となりました.
+                                    カート追加時の希望購入数(#{cart_item.asking_quantity}個)以下となりました.
                                     現在の在庫数は#{product.stock_quantity}個です."
         cart_item.possible_quantity = product.stock_quantity
         cart_item.save

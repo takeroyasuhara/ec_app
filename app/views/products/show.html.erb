@@ -1,19 +1,37 @@
 <% provide(:title, @product.title) %>
-<h1>
-  <%= @product.title %>
-</h1>
-
 <h2>
-  <%= @product.description %>
-  <%= @product.price %>
-
-  <%= form_for(current_user.cart_items.build(product_id: @product.id)) do |f| %>
-    <div><%= f.hidden_field :product_id %>
-    </div>
-    <%= f.select :asking_quantity,
-    options_for_select(["1", "2", "3", "4", "5", "6", "7", "8"]) %>
-
-    <%= f.submit "カート追加", class: "btn btn-large btn-primary" %>
-    <% end %>
-
+  <%= @product.title %>
 </h2>
+
+<h3>
+  <%= @product.description %>
+</h3>
+
+<h4>
+  <%= @product.price %>yen
+  <% if @product.stock_quantity > 8 %>
+    <%= form_for(current_user.cart_items.build(product_id: @product.id)) do |f| %>
+      <div><%= f.hidden_field :product_id %>
+      </div>
+      <%= f.select :asking_quantity,
+      options_for_select(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]) %>
+
+      <%= f.submit "Add to Shopping Cart", class: "btn btn-large btn-primary" %>
+      <% end %>
+
+  <% elsif @product.stock_quantity <= 10 || @product.stock_quantity != 0 %>
+    在庫数 <%= @product.stock_quantity %>
+    <%= form_for(current_user.cart_items.build(product_id: @product.id)) do |f| %>
+      <div><%= f.hidden_field :product_id %>
+      </div>
+      <%= f.select :asking_quantity,
+      options_for_select(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]) %>
+
+      <%= f.submit "Add to Shopping Cart", class: "btn btn-large btn-primary" %>
+      <% end %>
+
+  <% else @product.stock_quantity == 0 %>
+    在庫切れ
+  <% end %>
+
+</h4>
