@@ -1,19 +1,8 @@
 <% provide(:title, 'Confirmation') %>
-<h1>Order Confirmation</h1>
+<h1>注文商品確認</h1>
 
 <h5>
-  <% if @notifications != nil %>
-    <% @notifications.each do |notification| %>
-      <li>
-        <% cart_id = notification.cart_item_id%>
-        <% product_id = CartItem.find_by(id: cart_id).product_id %>
-        <% product = Product.find_by(id: product_id) %>
-        <%= product.title %>は変更があります。
-        <%= notification.price %>円
-        <%= notification.stock_quantity %>個
-      </li>
-    <% end %>
-  <% end %>
+  <%= render 'shared/notifications' %>
 </h5>
 
 <h5>
@@ -25,22 +14,22 @@
         <li>
           <%= link_to product.title, product %>
 
-          price: <%= product.price %>
-          order_quantity: <%= cart_item.possible_quantity %>
-          subtotal: <%= product.price * cart_item.possible_quantity %>
+          価格: <%= product.price %>
+          注文個数: <%= cart_item.possible_quantity %>
+          小計: <%= product.price * cart_item.possible_quantity %>
           <% sum += product.price * cart_item.possible_quantity%>
 
         </li>
         <% end %>
   <% end %>
   </ul>
-  total <%= sum %>
+  合計 <%= sum %>円
 
   <% if sum != 0%>
-    <%= form_for(@order) do |f| %>
-    <%= f.label "送付先の住所選択" %>
-    <%= f.text_field :address_text, class: 'form-control'%>
-    <%= f.submit "注文を確定する" %>
+    <%= form_for @order do |f| %>
+      <%= f.label "送付先の住所選択" %>
+      <%= f.collection_select :address_text, @addresses, :address_text, :address_text%>
+      <%= f.submit "注文を確定する" %>
     <% end %>
   <% end %>
 

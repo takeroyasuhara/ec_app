@@ -1,20 +1,9 @@
 <% provide(:title, 'All Cart Items') %>
-<h1>All Cart Items</h1>
+<h1>カート内商品一覧</h1>
 
 <% if @cart_items.count != 0 %>
   <h5>
-    <% if @notifications != nil %>
-      <% @notifications.each do |notification| %>
-        <li>
-          <% cart_id = notification.cart_item_id%>
-          <% product_id = CartItem.find_by(id: cart_id).product_id %>
-          <% product = Product.find_by(id: product_id) %>
-          <%= product.title %>は変更があります。
-          <%= notification.price %>円
-          <%= notification.stock_quantity %>個
-        </li>
-      <% end %>
-    <% end %>
+    <%= render 'shared/notifications' %>
   </h5>
 
   <h5>
@@ -25,10 +14,10 @@
         <% cart_item = @cart_items.find_by(product_id: product.id) %>
         <%= link_to product.title, product %>
 
-        price: <%= product.price %>
-        asking_quantity: <%= cart_item.asking_quantity %>
-        possible_quantity: <%= cart_item.possible_quantity %>
-        subtotal: <%= product.price * cart_item.possible_quantity %>
+        価格: <%= product.price %>円
+        購入希望数: <%= cart_item.asking_quantity %>個
+        購入可能数: <%= cart_item.possible_quantity %>個
+        小計: <%= product.price * cart_item.possible_quantity %>円
         <% sum += product.price * cart_item.possible_quantity%>
 
         <%= link_to "delete", cart_item_path(cart_item.id),
@@ -46,7 +35,7 @@
       </li>
       <% end %>
     </ul>
-    total: <%= sum %>
+    合計: <%= sum %>円
     <% if sum != 0%>
       <%= link_to "注文確定画面に進む", confirmation_path %>
     <% end %>

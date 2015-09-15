@@ -14,7 +14,7 @@
 ActiveRecord::Schema.define(version: 20150914051943) do
 
   create_table "addresses", force: :cascade do |t|
-    t.string   "address_text", limit: 500, null: false
+    t.string   "address_text", limit: 250, null: false
     t.integer  "user_id",                  null: false
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false

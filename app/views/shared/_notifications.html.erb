@@ -1,0 +1,19 @@
+<% if @notifications != nil %>
+  <% @notifications.each do |notification| %>
+    <FONT color="red">
+      <li>
+        <% cart_id = notification.cart_item_id%>
+        <% product_id = CartItem.find_by(id: cart_id).product_id %>
+        <% product = Product.find_by(id: product_id) %>
+        <%= product.title %>の商品情報に変更があります。
+        (カート追加時の商品情報：
+        価格<%= notification.asking_price %>円,
+        購入希望数<%= notification.asking_quantity %>個,
+
+        最新の商品情報：
+        価格<%= notification.price %>円,
+        購入可能数<%= notification.stock_quantity %>個）
+      </li>
+     </FONT>
+  <% end %>
+<% end %>

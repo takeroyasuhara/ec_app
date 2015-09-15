@@ -145,6 +145,8 @@ class CartItemsController < ApplicationController
                   WHERE user_id = :current_user_id"
     @notifications = Notification.where("cart_item_id IN (#{cart_ids})",
                               current_user_id: current_user.id)
+    @addresses = Address.where(user_id: current_user.id)
+
   end
 
 end
