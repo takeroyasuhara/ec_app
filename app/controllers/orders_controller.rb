@@ -1,49 +1,106 @@
 class OrdersController < ApplicationController
   def create
-
     @cart_items = CartItem.where(user_id: current_user.id)
     product_ids = "SELECT product_id FROM cart_items
                      WHERE  user_id = :current_user_id"
     @products = Product.where("id IN (#{product_ids})",
                               current_user_id: current_user.id)
-
-    @notification_messages = []
-
-    @products.each do |product|
-      cart_item = @cart_items.find_by(product_id: product.id)
-      if cart_item.asking_price != product.price
-        @notification_messages << "#{product.title}の商品価格が
-                                  カート追加時(#{cart_item.asking_price}円)から変更されています.
-                                  現在の価格は#{product.price}円です.カート内の商品を再確認ください."
-
-      elsif cart_item.asking_quantity > product.stock_quantity
-        @notification_messages << "#{product.title}の在庫数が
-                                  カート追加時の希望購入個数(#{cart_item.asking_quantity}個)以下となりました.
-                                  現在の在庫数は#{product.stock_quantity}個です.カート内の商品を再確認ください."
-        cart_item.possible_quantity = product.stock_quantity
-        cart_item.save
+    cart_ids = "SELECT id FROM cart_items
+                  WHERE user_id = :current_user_id"
+    @notifications = Notification.where("cart_item_id IN (#{cart_ids})",
+                              current_user_id: current_user.id)
+    if @notifications.count != 0
+      # 既に存在しているnotificationに更新があれば、更新して再通知
+      # 更新なくともstock_quantityが0なら注文処理しない
+      # 更新なくてstock_quantityが0でなければ注文処理実行
+      @notifications.each do |notification|
+        cart_id = notification.cart_item_id
+        cart_item = CartItem.find_by(id: cart_id)
+        product = Product.find_by(id: cart_item.product_id)
+        if notification.price != product.price || notification.stock_quantity != product.stock_quantity
+          notification.price = product.price
+          notification.stock_quantity = product.stock_quantity
+          notification.save
+        elsif notification.stock_quantity == 0
+        else
+          notification.destroy
+          @order = Order.new
+          @order.address_text = params[:order][:address_text]
+          @order.save
+          OrderItem.create(user_id: current_user.id, product_id: product.id,
+                            order_id: @order.id,price: product.price, quantity: cart_item.possible_quantity)
+          cart_item.destroy
+          product.stock_quantity -= cart_item.possible_quantity
+          product.save
+        end
+        @notifications = Notification.where("cart_item_id IN (#{cart_ids})",
+                                            current_user_id: current_user.id)
       end
-    end
+      if @order
+        @cart_items = CartItem.where(user_id: current_user.id)
+        product_ids = "SELECT product_id FROM cart_items
+                         WHERE  user_id = :current_user_id
+                         AND possible_quantity != 0"
+        @products = Product.where("id IN (#{product_ids})",
+                                  current_user_id: current_user.id)
 
-    # order_items = @products.where(stock_quantity != 0)
-
-    if @notification_messages == nil
-
-      @products.each do |product|
-        cart_item = @cart_items.find_by(product_id: product.id)
-
+        @products.each do |product|
+          cart_item = @cart_items.find_by(product_id: product.id)
+          OrderItem.create(user_id: current_user.id, product_id: product.id,
+                            order_id: @order.id,price: product.price, quantity: cart_item.possible_quantity)
+          cart_item.destroy
+          product.stock_quantity -= cart_item.possible_quantity
+          product.save
+        end
+      else
         @order = Order.new
         @order.address_text = params[:order][:address_text]
         @order.save
-        OrderItem.create(user_id: current_user.id, product_id: product.id, order_id: @order.id,
-                          price: product.price, quantity: cart_item.possible_quantity)
 
-        cart_item.destroy
-        product.stock_quantity -= cart_item.possible_quantity
-        product.save
+        @cart_items = CartItem.where(user_id: current_user.id)
+        product_ids = "SELECT product_id FROM cart_items
+                           WHERE  user_id = :current_user_id
+                           AND possible_quantity != 0"
+        @products = Product.where("id IN (#{product_ids})",
+                                    current_user_id: current_user.id)
+
+        @products.each do |product|
+          cart_item = @cart_items.find_by(product_id: product.id)
+          OrderItem.create(user_id: current_user.id, product_id: product.id,
+                            order_id: @order.id,price: product.price, quantity: cart_item.possible_quantity)
+          cart_item.destroy
+          product.stock_quantity -= cart_item.possible_quantity
+          product.save
+        end
       end
-      flash.now[:success] = "注文処理が完了しました!"
+    else @notifications.count == 0
+      @products.each do |product|
+        cart_item = @cart_items.find_by(product_id: product.id)
+        if cart_item.asking_price != product.price # 通知する必要あれば通知
+          Notification.create(cart_item_id: cart_item.id, asking_price: cart_item.asking_price,
+            price: product.price, asking_quantity: cart_item.asking_quantity,
+            stock_quantity: product.stock_quantity)
+        elsif cart_item.possible_quantity > product.stock_quantity # 通知する必要あれば通知
+          Notification.create(cart_item_id: cart_item.id, asking_price: cart_item.asking_price,
+            price: product.price, asking_quantity: cart_item.asking_quantity,
+            stock_quantity: product.stock_quantity)
+        else # 通知する必要なければ購入処理
+          @order = Order.new
+          @order.address_text = params[:order][:address_text]
+          @order.save
+          OrderItem.create(user_id: current_user.id, product_id: product.id, order_id: @order.id,
+                            price: product.price, quantity: cart_item.possible_quantity)
+
+          cart_item.destroy
+          product.stock_quantity -= cart_item.possible_quantity
+          product.save
+        end
+      end
+      @notifications = Notification.where("cart_item_id IN (#{cart_ids})",
+                                current_user_id: current_user.id)
+    end
+    if @order != nil
+      @order_items = OrderItem.where(order_id: @order.id)
     end
   end
-
 end

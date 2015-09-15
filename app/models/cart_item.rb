@@ -1,6 +1,7 @@
 class CartItem < ActiveRecord::Base
   belongs_to :user
   belongs_to :product
+  has_one :notification, dependent: :destroy
 
   validates :user_id, presence: true
   validates :product_id, presence: true

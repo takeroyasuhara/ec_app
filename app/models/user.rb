@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
   has_many :addresses
   has_many :cart_items
-  has_many :purchasing_products, class_name: "Product", through: :cart_items
+  has_many :purchasing_products, class_name: "Product", through: :cart_items, dependent: :destroy
   has_many :order_items
   has_many :purchased_products, class_name: "Product", through: :order_items
 

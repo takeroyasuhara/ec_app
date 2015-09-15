@@ -1,7 +1,30 @@
 <h5>
-  <% @notification_messages.each do |i| %>
-    <li>
-      <%= p i %>
-    </li>
+  <% if @notifications != nil %>
+    <% @notifications.each do |notification| %>
+      <li>
+        <% cart_id = notification.cart_item_id%>
+        <% product_id = CartItem.find_by(id: cart_id).product_id %>
+        <% product = Product.find_by(id: product_id) %>
+        <%= product.title %>は変更があります。
+        <%= notification.price %>円
+        <%= notification.stock_quantity %>個
+      </li>
+    <% end %>
   <% end %>
+</h5>
+
+<h4>購入完了商品</h4>
+
+<h5>
+  <% if @order != nil %>
+    <% @order_items.each do |order_item| %>
+    <% product = Product.find(order_item.product_id) %>
+    <li>
+      <%= order_item.product_id %>
+      <%= order_item.price %>
+      <%= order_item.quantity %>
+    </li>
+    <% end %>
+  <% end %>
+
 </h5>
