@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resources :users
   resources :products
   resources :cart_items,       only: [:index, :create, :destroy, :update]
-  get    'confirmation' =>  'cart_items#confirmation'
+  get    'confirmation' =>  'orders#new'
   post   'orders'       =>  'orders#create'
 
   # The priority is based upon order of creation: first created -> highest priority.

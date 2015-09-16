@@ -1,4 +1,57 @@
 class OrdersController < ApplicationController
+
+  def new
+    @cart_items = CartItem.where(user_id: current_user.id)
+    product_ids = "SELECT product_id FROM cart_items
+                     WHERE  user_id = :current_user_id"
+    @products = Product.where("id IN (#{product_ids})",
+                              current_user_id: current_user.id)
+    @order = Order.new
+    @products.each do |product|
+      cart_item = @cart_items.find_by(product_id: product.id)
+      if cart_item.asking_price != product.price
+        if Notification.where(cart_item_id: cart_item.id).count != 0
+          notification = Notification.find_by(cart_item_id: cart_item.id)
+          notification.price = product.price
+          notification.save
+
+        else
+          Notification.create(cart_item_id: cart_item.id, asking_price: cart_item.asking_price,
+            price: product.price, asking_quantity: cart_item.asking_quantity,
+            stock_quantity: product.stock_quantity)
+        end
+
+      elsif cart_item.asking_quantity > product.stock_quantity
+        if Notification.where(cart_item_id: cart_item.id).count != 0
+          notification = Notification.find_by(cart_item_id: cart_item.id)
+          notification.stock_quantity = product.stock_quantity
+          notification.save
+
+        else
+          Notification.create(cart_item_id: cart_item.id, asking_price: cart_item.asking_price,
+            price: product.price, asking_quantity: cart_item.asking_quantity,
+            stock_quantity: product.stock_quantity)
+        end
+        cart_item.possible_quantity = product.stock_quantity
+        cart_item.save
+      elsif cart_item.asking_quantity <= product.stock_quantity
+        if Notification.where(cart_item_id: cart_item.id).count != 0
+          notification = Notification.find_by(cart_item_id: cart_item.id)
+          notification.destroy
+          cart_item.possible_quantity = cart_item.asking_quantity
+          cart_item.save
+        end
+      end
+    end
+    cart_ids = "SELECT id FROM cart_items
+                  WHERE user_id = :current_user_id"
+    @notifications = Notification.where("cart_item_id IN (#{cart_ids})",
+                              current_user_id: current_user.id)
+    @addresses = Address.where(user_id: current_user.id)
+
+  end
+
+
   def create
     @order = Order.new
     @order.address_text = params[:order][:address_text]

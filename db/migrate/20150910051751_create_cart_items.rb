@@ -4,7 +4,7 @@ class CreateCartItems < ActiveRecord::Migration
       t.belongs_to :user
       t.belongs_to :product
       t.integer :asking_price, null: false
-      t.integer :asking_quantity, null: false
+      t.integer :asking_quantity, default: 0, null: false
       t.integer :possible_quantity, null:false
 
       t.timestamps null: false
