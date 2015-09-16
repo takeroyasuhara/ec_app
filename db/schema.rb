@@ -15,35 +15,37 @@ ActiveRecord::Schema.define(version: 20150914051943) do
 
   create_table "addresses", force: :cascade do |t|
     t.string   "address_text", limit: 250, null: false
-    t.integer  "user_id",                  null: false
+    t.integer  "user_id"
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
   end
 
   create_table "cart_items", force: :cascade do |t|
-    t.integer  "user_id",           null: false
-    t.integer  "product_id",        null: false
+    t.integer  "user_id"
+    t.integer  "product_id"
     t.integer  "asking_price",      null: false
     t.integer  "asking_quantity",   null: false
+    t.integer  "possible_quantity", null: false
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
-    t.integer  "possible_quantity"
   end
 
+  add_index "cart_items", ["user_id", "product_id"], name: "index_cart_items_on_user_id_and_product_id", unique: true
+
   create_table "notifications", force: :cascade do |t|
-    t.integer  "cart_item_id"
-    t.integer  "asking_price"
-    t.integer  "price"
-    t.integer  "asking_quantity"
-    t.integer  "stock_quantity"
+    t.integer  "cart_item_id",    null: false
+    t.integer  "asking_price",    null: false
+    t.integer  "price",           null: false
+    t.integer  "asking_quantity", null: false
+    t.integer  "stock_quantity",  null: false
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
 
   create_table "order_items", force: :cascade do |t|
-    t.integer  "user_id",    null: false
-    t.integer  "product_id", null: false
-    t.integer  "order_id",   null: false
+    t.integer  "user_id"
+    t.integer  "product_id"
+    t.integer  "order_id"
     t.integer  "price",      null: false
     t.integer  "quantity",   null: false
     t.datetime "created_at", null: false
@@ -68,10 +70,12 @@ ActiveRecord::Schema.define(version: 20150914051943) do
 
   create_table "users", force: :cascade do |t|
     t.string   "name",            limit: 50,  null: false
-    t.string   "email",           limit: 255, null: false
+    t.string   "email",           limit: 256, null: false
     t.string   "password_digest",             null: false
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
   end
+
+  add_index "users", ["email"], name: "index_users_on_email", unique: true
 
 end
