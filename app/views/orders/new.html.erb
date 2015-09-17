@@ -2,22 +2,18 @@
 <h1>注文商品確認</h1>
 
 <h5>
-  <%= render 'shared/notifications' %>
-</h5>
-
-<h5>
   <ul>
   <% sum = 0 %>
   <% @products.each do |product| %>
     <% cart_item = @cart_items.find_by(product_id: product.id) %>
-      <% if cart_item.possible_quantity != 0%>
+      <% if cart_item.asking_quantity != 0%>
         <li>
           <%= link_to product.title, product %>
 
           価格: <%= product.price %>
-          注文個数: <%= cart_item.possible_quantity %>
-          小計: <%= product.price * cart_item.possible_quantity %>
-          <% sum += product.price * cart_item.possible_quantity%>
+          注文個数: <%= cart_item.asking_quantity %>
+          小計: <%= product.price * cart_item.asking_quantity %>
+          <% sum += product.price * cart_item.asking_quantity%>
 
         </li>
         <% end %>

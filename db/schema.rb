@@ -11,45 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150914051943) do
+ActiveRecord::Schema.define(version: 20150910051836) do
 
   create_table "addresses", force: :cascade do |t|
-    t.string   "address_text", limit: 250, null: false
-    t.integer  "user_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.string   "address_text", limit: 250,             null: false
+    t.integer  "user_id",                  default: 0
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
   end
 
+  add_index "addresses", ["user_id"], name: "index_addresses_on_user_id"
+
   create_table "cart_items", force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "product_id"
-    t.integer  "asking_price",                  null: false
-    t.integer  "asking_quantity",   default: 0, null: false
-    t.integer  "possible_quantity",             null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.integer  "user_id",         default: 0
+    t.integer  "product_id",      default: 0
+    t.integer  "asking_price",                null: false
+    t.integer  "asking_quantity", default: 0, null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   add_index "cart_items", ["user_id", "product_id"], name: "index_cart_items_on_user_id_and_product_id", unique: true
 
-  create_table "notifications", force: :cascade do |t|
-    t.integer  "cart_item_id",    null: false
-    t.integer  "asking_price",    null: false
-    t.integer  "price",           null: false
-    t.integer  "asking_quantity", null: false
-    t.integer  "stock_quantity",  null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
-  end
-
   create_table "order_items", force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "product_id"
-    t.integer  "order_id"
-    t.integer  "price",      null: false
-    t.integer  "quantity",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "user_id",    default: 0
+    t.integer  "product_id", default: 0
+    t.integer  "order_id",   default: 0
+    t.integer  "price",                  null: false
+    t.integer  "quantity",               null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "orders", force: :cascade do |t|

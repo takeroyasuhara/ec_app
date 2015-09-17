@@ -2,9 +2,6 @@
 <h1>カート内商品一覧</h1>
 
 <% if @cart_items.count != 0 %>
-  <h5>
-    <%= render 'shared/notifications' %>
-  </h5>
 
   <h5>
     <ul>
@@ -16,18 +13,17 @@
 
         価格: <%= product.price %>円
         購入希望数: <%= cart_item.asking_quantity %>個
-        購入可能数: <%= cart_item.possible_quantity %>個
-        小計: <%= product.price * cart_item.possible_quantity %>円
-        <% sum += product.price * cart_item.possible_quantity%>
+        小計: <%= product.price * cart_item.asking_quantity %>円
+        <% sum += product.price * cart_item.asking_quantity%>
 
         <%= link_to "delete", cart_item_path(cart_item.id),
          method: :delete, data: { confirm: "You sure?" } %>
 
-        <% if cart_item.possible_quantity !=0 %>
+        <% if cart_item.asking_quantity !=0 %>
           <%= form_for(cart_item) do |f| %>
           <div><%= f.hidden_field :product_id %></div>
 
-          <%= f.text_field :possible_quantity, class: 'form-control'%>
+          <%= f.text_field :asking_quantity, class: 'form-control'%>
           <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
           <% end %>
         <% end %>
