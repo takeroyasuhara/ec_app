@@ -20,6 +20,17 @@ class CartItemsController < ApplicationController
     else
       @cart_items = current_user.cart_items
       @products = Product.joins(:cart_items).merge(@cart_items)
+      @products.each do |product|
+        cart_item = @cart_items.find_by(product_id: product.id)
+        if cart_item.asking_price != product.price
+          flash.now[:warning] = "#{product.title}の価格が変わりました！"
+          cart_item.asking_price = product.price
+          cart_item.save
+        elsif cart_item.asking_quantity > product.stock_quantity
+          flash.now[:warning] = "#{product.title}の在庫数が足りなくなりました！"
+        end
+      end
+
     end
   end
 
@@ -32,16 +43,27 @@ class CartItemsController < ApplicationController
   def update
     cart_item = CartItem.find(params[:id])
     product = Product.find(cart_item.product_id)
-    cart_item.asking_quantity = params[:cart_item][:asking_quantity]
-    quantity = cart_item.asking_quantity
-    if quantity <= product.stock_quantity && cart_item.save
-      flash[:success] = "#{product.title}の購入希望数を変更しました"
-    elsif quantity > product.stock_quantity
-      flash[:danger] = "#{product.title}は在庫数が不足しています"
-    else
-      flash[:danger] = "1以上の整数を入力してください"
+    begin
+      CartItem.transaction do
+        cart_item.lock_version = params[:cart_item][:lock_version]
+        cart_item.asking_quantity = params[:cart_item][:asking_quantity]
+        if cart_item.asking_quantity <= product.stock_quantity && cart_item.save
+          flash[:success] = "#{product.title}をカートに追加しました"
+        else
+          flash[:danger] = "#{product.title}は在庫数が不足しています"
+        end
+      end
+    rescue ActiveRecord::StaleObjectError
+      flash[:danger] = "カート内は変更されています"
     end
     redirect_to cart_items_path
+  end
+
+
+  private
+
+  def cart_item_params
+    params.require(:cart_item).permit(:asking_price, :asking_quantity, :lock_version)
   end
 
 end

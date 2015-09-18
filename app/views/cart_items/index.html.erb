@@ -12,21 +12,28 @@
         <%= link_to product.title, product %>
 
         価格: <%= product.price %>円
+        <% if cart_item.asking_quantity <= product.stock_quantity %>
         購入希望数: <%= cart_item.asking_quantity %>個
-        小計: <%= product.price * cart_item.asking_quantity %>円
-        <% sum += product.price * cart_item.asking_quantity%>
+          小計: <%= product.price * cart_item.asking_quantity %>円
+          <% sum += product.price * cart_item.asking_quantity%>
+        <% elsif cart_item.asking_quantity > product.stock_quantity && product.stock_quantity != 0%>
+        <font color=Red>在庫が購入希望数（<%= cart_item.asking_quantity %>個）以下です。現在<%= product.stock_quantity %>個まで購入できます</font>
+        <% else product.stock_quantity == 0%>
+        <font color=Red>在庫切れです。</font>
+        <% end %>
 
         <%= link_to "delete", cart_item_path(cart_item.id),
          method: :delete, data: { confirm: "You sure?" } %>
 
-        <% if cart_item.asking_quantity !=0 %>
+        <% if product.stock_quantity !=0 %>
           <%= form_for(cart_item) do |f| %>
-          <div><%= f.hidden_field :product_id %></div>
+          <%= f.hidden_field :lock_version %>
 
           <%= f.text_field :asking_quantity, class: 'form-control'%>
           <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
-          <% end %>
         <% end %>
+
+      <% end %>
 
       </li>
       <% end %>
