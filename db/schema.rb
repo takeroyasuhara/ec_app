@@ -14,22 +14,22 @@
 ActiveRecord::Schema.define(version: 20150910051836) do
 
   create_table "addresses", force: :cascade do |t|
-    t.string   "address_text", limit: 250,             null: false
-    t.integer  "user_id",                  default: 0, null: false
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
+    t.string   "address_text", limit: 250, default: "no text", null: false
+    t.integer  "user_id",                  default: 0,         null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
   end
 
   add_index "addresses", ["user_id"], name: "index_addresses_on_user_id"
 
   create_table "cart_items", force: :cascade do |t|
-    t.integer  "user_id",         default: 0, null: false
-    t.integer  "product_id",      default: 0, null: false
-    t.integer  "asking_price",                null: false
-    t.integer  "asking_quantity", default: 0, null: false
-    t.integer  "lock_version",    default: 0, null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.integer  "user_id",          default: 0, null: false
+    t.integer  "product_id",       default: 0, null: false
+    t.integer  "price_in_cart",    default: 0, null: false
+    t.integer  "quantity_in_cart", default: 0, null: false
+    t.integer  "lock_version",     default: 0, null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "cart_items", ["user_id", "product_id"], name: "index_cart_items_on_user_id_and_product_id", unique: true
@@ -38,35 +38,35 @@ ActiveRecord::Schema.define(version: 20150910051836) do
     t.integer  "user_id",    default: 0, null: false
     t.integer  "product_id", default: 0, null: false
     t.integer  "order_id",   default: 0, null: false
-    t.integer  "price",                  null: false
-    t.integer  "quantity",               null: false
+    t.integer  "price",      default: 0, null: false
+    t.integer  "quantity",   default: 0, null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
 
   create_table "orders", force: :cascade do |t|
-    t.string   "address_text", null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.string   "address_text", limit: 250, default: "no text", null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
   end
 
   create_table "products", force: :cascade do |t|
-    t.string   "title",          limit: 20,  null: false
-    t.text     "description",    limit: 500, null: false
-    t.string   "image_url",                  null: false
-    t.integer  "price",                      null: false
-    t.integer  "stock_quantity",             null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "title",          limit: 20,  default: "no title", null: false
+    t.text     "description",    limit: 500, default: "no text",  null: false
+    t.string   "image_url",                  default: "no url",   null: false
+    t.integer  "price",                      default: 0,          null: false
+    t.integer  "stock_quantity",             default: 0,          null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",            limit: 50,  null: false
-    t.string   "email",           limit: 256, null: false
-    t.string   "password_digest",             null: false
+    t.string   "name",            limit: 50,  default: "no name",  null: false
+    t.string   "email",           limit: 256, default: "no email", null: false
+    t.string   "password_digest",                                  null: false
     t.string   "remember_digest"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true

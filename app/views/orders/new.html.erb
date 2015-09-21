@@ -3,32 +3,34 @@
 
 <h5>
   <ul>
-  <% sum = 0 %>
-  <% @products.each do |product| %>
-    <li>
-      <% cart_item = @cart_items.find_by(product_id: product.id) %>
-      <%= link_to product.title, product %>
-
-      価格: <%= product.price %>円
-      <% if cart_item.asking_quantity <= product.stock_quantity %>
-      購入希望数: <%= cart_item.asking_quantity %>個
-        小計: <%= product.price * cart_item.asking_quantity %>円
-        <% sum += product.price * cart_item.asking_quantity%>
-      <% elsif cart_item.asking_quantity > product.stock_quantity && product.stock_quantity != 0%>
-      <font color=Red>在庫が購入希望数（<%= cart_item.asking_quantity %>個）以下です。現在<%= product.stock_quantity %>個まで購入できます</font>
-      <% else product.stock_quantity == 0%>
-      <font color=Red>在庫切れです。</font>
-      <% end %>
-  <% end %>
+    <% sum = 0 %>
+    <% error = 0 %>
+    <% @cart_items.includes(:product).each do |cart_item| %>
+      <li>
+        <%= link_to cart_item.product.title, cart_item.product %>
+        価格: <%= cart_item.product.price %>円
+          <% if cart_item.quantity_in_cart <= cart_item.product.stock_quantity %>
+              購入希望数: <%= cart_item.quantity_in_cart %>個
+              小計:<%= cart_item.product.price * cart_item.quantity_in_cart %>円
+              <% sum += cart_item.product.price * cart_item.quantity_in_cart%>
+          <% elsif cart_item.quantity_in_cart > cart_item.product.stock_quantity %>
+              <font color=Red>在庫数が購入希望数（<%= cart_item.quantity_in_cart %>個）以下です。
+              現在の在庫数は<%= cart_item.product.stock_quantity %>個です。</font>
+              <% error += 1 %>
+          <% end %>
+    <% end %>
   </ul>
   合計 <%= sum %>円
 
-  <% if sum != 0%>
+  <% if error == 0%>
     <%= form_for @order do |f| %>
       <%= f.label "送付先の住所選択" %>
       <%= f.collection_select :address_text, @addresses, :address_text, :address_text%>
       <%= f.submit "注文を確定する" %>
     <% end %>
+  <% elsif error != 0%>
+    <font color=Red>商品の在庫数が希望購入数以下であるため、注文できません。
+    該当商品を削除するか、希望購入数を在庫数以下に変更してください。</font>
   <% end %>
 
 </h5>

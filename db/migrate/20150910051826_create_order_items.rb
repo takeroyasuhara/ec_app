@@ -4,8 +4,8 @@ class CreateOrderItems < ActiveRecord::Migration
       t.belongs_to :user, default: 0, null: false
       t.belongs_to :product, default: 0, null: false
       t.belongs_to :order, default: 0, null: false
-      t.integer :price, null: false
-      t.integer :quantity, null: false
+      t.integer :price, default: 0, null: false
+      t.integer :quantity, default: 0, null: false
 
       t.timestamps null: false
     end

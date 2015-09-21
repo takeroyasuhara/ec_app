@@ -8,7 +8,7 @@ class UsersController < ApplicationController
     if @user.save
       sign_in @user
       flash[:success] = "Welcome to Our Shopping Site!!"
-      redirect_to root_url
+      return redirect_to root_url
     else
       render 'new'
     end

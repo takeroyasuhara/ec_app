@@ -2,45 +2,44 @@
 <h1>カート内商品一覧</h1>
 
 <% if @cart_items.count != 0 %>
-
   <h5>
     <ul>
     <% sum = 0 %>
-    <% @products.each do |product| %>
+    <% error = 0 %>
+    <% @cart_items.includes(:product).each do |cart_item| %>
       <li>
-        <% cart_item = @cart_items.find_by(product_id: product.id) %>
-        <%= link_to product.title, product %>
+        <%= link_to cart_item.product.title, cart_item.product %>
+        価格: <%= cart_item.product.price %>円
+          <% if cart_item.quantity_in_cart <= cart_item.product.stock_quantity %>
+              購入希望数: <%= cart_item.quantity_in_cart %>個
+              小計:<%= cart_item.product.price * cart_item.quantity_in_cart %>円
+              <% sum += cart_item.product.price * cart_item.quantity_in_cart%>
+          <% elsif cart_item.quantity_in_cart > cart_item.product.stock_quantity %>
+              <font color=Red>在庫数が購入希望数（<%= cart_item.quantity_in_cart %>個）以下です。
+              現在の在庫数は<%= cart_item.product.stock_quantity %>個です。</font>
+              <% error += 1 %>
+          <% end %>
 
-        価格: <%= product.price %>円
-        <% if cart_item.asking_quantity <= product.stock_quantity %>
-        購入希望数: <%= cart_item.asking_quantity %>個
-          小計: <%= product.price * cart_item.asking_quantity %>円
-          <% sum += product.price * cart_item.asking_quantity%>
-        <% elsif cart_item.asking_quantity > product.stock_quantity && product.stock_quantity != 0%>
-        <font color=Red>在庫が購入希望数（<%= cart_item.asking_quantity %>個）以下です。現在<%= product.stock_quantity %>個まで購入できます</font>
-        <% else product.stock_quantity == 0%>
-        <font color=Red>在庫切れです。</font>
-        <% end %>
+            <%= link_to "delete", cart_item_path(cart_item.id),
+             method: :delete, data: { confirm: "You sure?" } %>
 
-        <%= link_to "delete", cart_item_path(cart_item.id),
-         method: :delete, data: { confirm: "You sure?" } %>
+        <% if cart_item.product.stock_quantity !=0 %>
+            <%= form_for(cart_item) do |f| %>
+            <%= f.hidden_field :lock_version %>
 
-        <% if product.stock_quantity !=0 %>
-          <%= form_for(cart_item) do |f| %>
-          <%= f.hidden_field :lock_version %>
-
-          <%= f.text_field :asking_quantity, class: 'form-control'%>
-          <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
-        <% end %>
-
-      <% end %>
-
+            <%= f.text_field :quantity_in_cart, class: 'form-control'%>
+            <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
+            <% end %>
+       <% end %>
       </li>
-      <% end %>
+    <% end %>
     </ul>
     合計: <%= sum %>円
-    <% if sum != 0%>
-      <%= link_to "注文確定画面に進む", confirmation_path %>
+    <% if error == 0%>
+      <%= link_to "注文内容確認画面に進む", confirmation_path %>
+    <% elsif error != 0%>
+      <font color=Red>商品の在庫数が希望購入数以下であるため、注文できません。
+        該当商品を削除するか、希望購入数を在庫数以下に変更してください。</font>
     <% end %>
   </h5>
 <% else @cart_items.count == 0 %>

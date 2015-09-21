@@ -4,7 +4,7 @@ class CartItem < ActiveRecord::Base
 
   validates :user_id, presence: true
   validates :product_id, presence: true
-  validates :asking_price, presence: true
-  validates :asking_quantity, presence: true,
+  validates :price_in_cart, presence: true
+  validates :quantity_in_cart, presence: true,
               numericality: { only_integer: true, greater_than: 0 }
 end
