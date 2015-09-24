@@ -5,7 +5,7 @@ class CreateCartItems < ActiveRecord::Migration
       t.belongs_to :product, default: 0, null: false
       t.integer :price_in_cart, default: 0, null: false
       t.integer :quantity_in_cart, default: 0, null: false
-      t.integer :lock_version, default: 0, null: false
+      t.string :lock_token, default: 0, null: false
 
       t.timestamps null: false
       t.index [:user_id, :product_id], unique: true

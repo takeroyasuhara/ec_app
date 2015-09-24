@@ -25,7 +25,6 @@
 
         <% if cart_item.product.stock_quantity !=0 %>
             <%= form_for(cart_item) do |f| %>
-            <%= f.hidden_field :lock_version %>
 
             <%= f.text_field :quantity_in_cart, class: 'form-control'%>
             <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
@@ -36,7 +35,10 @@
     </ul>
     合計: <%= sum %>円
     <% if error == 0%>
-      <%= link_to "注文内容確認画面に進む", confirmation_path %>
+      <%= form_tag(confirmation_path) do %>
+      <%= hidden_field_tag 'token', @long_token %>
+      <%= submit_tag "注文内容確認" %>
+      <% end %>
     <% elsif error != 0%>
       <font color=Red>商品の在庫数が希望購入数以下であるため、注文できません。
         該当商品を削除するか、希望購入数を在庫数以下に変更してください。</font>

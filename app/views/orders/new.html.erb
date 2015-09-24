@@ -24,6 +24,7 @@
 
   <% if error == 0%>
     <%= form_for @order do |f| %>
+      <%= hidden_field_tag 'token', @long_token%>
       <%= f.label "送付先の住所選択" %>
       <%= f.collection_select :address_text, @addresses, :address_text, :address_text%>
       <%= f.submit "注文を確定する" %>
