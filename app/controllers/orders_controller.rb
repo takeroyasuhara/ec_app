@@ -34,12 +34,15 @@ class OrdersController < ApplicationController
       return redirect_to cart_items_path
     end
 
-    @cart_items.each do |cart_item|
-      OrderItem.create(user_id: current_user.id, product_id: cart_item.product.id,
-                            order_id: @order.id, price: cart_item.product.price, quantity: cart_item.quantity_in_cart)
-      cart_item.destroy
-      cart_item.product.stock_quantity -= cart_item.quantity_in_cart
-      cart_item.product.save
+    ActiveRecord::Base.transaction do
+      @cart_items.each do |cart_item|
+        product = Product.lock.find(cart_item.product_id)
+        OrderItem.create(user_id: current_user.id, product_id: product.id,
+                              order_id: @order.id, price: product.price, quantity: cart_item.quantity_in_cart)
+        cart_item.destroy!
+        product.stock_quantity -= cart_item.quantity_in_cart
+        product.save!
+      end
     end
     @order_items = OrderItem.where(order_id: @order.id)
   end
