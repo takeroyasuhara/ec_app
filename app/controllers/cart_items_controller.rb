@@ -32,11 +32,8 @@ class CartItemsController < ApplicationController
     @cart_items = current_user.cart_items
     connect_token = ""
     @cart_items.includes(:product).each do |cart_item|
-      if cart_item.price_in_cart != cart_item.product.price
-        flash.now[:warning] = "#{cart_item.product.title}の価格が
-        #{cart_item.price_in_cart}円から#{cart_item.product.price}円に変わりました！"
-        cart_item.price_in_cart = cart_item.product.price
-        cart_item.save
+      if cart_item.price_in_cart != cart_item.product.price && cart_item.price_in_cart != 0
+        flash.now[:warning] = "カート内の商品価格に変更がありました。カート内の商品を確認ください！"
       end
       connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)
     end
@@ -45,12 +42,12 @@ class CartItemsController < ApplicationController
 
   def destroy
     @cart_item.destroy
-    flash[:success] = "カートから#{cart_item.product.title}を削除しました！"
+    flash[:success] = "カートから#{@cart_item.product.title}を削除しました！"
     redirect_to cart_items_path
   end
 
   def update
-    cart_item = CartItem.find(params[:id])
+    cart_item = current_user.cart_items.find_or_initialize_by(product_id: params[:cart_item][:product_id])
     origin_quantity = cart_item.quantity_in_cart
     asking_quantity = params[:cart_item][:quantity_in_cart].to_i
     cart_item.quantity_in_cart = asking_quantity
@@ -74,9 +71,9 @@ class CartItemsController < ApplicationController
 
   private
     def correct_user
-      @cart_item = current_user.cart_items.find(id: params[:id])
+      @cart_item = current_user.cart_items.find(params[:id])
     rescue
-      redirect_to root_url
+      redirect_to cart_items_path
     end
 
 end

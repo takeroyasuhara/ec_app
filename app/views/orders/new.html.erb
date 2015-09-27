@@ -8,30 +8,41 @@
     <% @cart_items.includes(:product).each do |cart_item| %>
       <li>
         <%= link_to cart_item.product.title, cart_item.product %>
-        価格: <%= cart_item.product.price %>円
+          <% if cart_item.price_in_cart == cart_item.product.price %>
+              価格: <%= cart_item.price_in_cart %>円
+          <% else %>
+              <font color=Red>
+              変更前価格: <%= cart_item.price_in_cart %>円
+              変更後価格: <%= cart_item.product.price %>円
+              </font>
+              <% cart_item.update_attribute(:price_in_cart, cart_item.product.price) %>
+          <% end %>
+
           <% if cart_item.quantity_in_cart <= cart_item.product.stock_quantity %>
               購入希望数: <%= cart_item.quantity_in_cart %>個
-              小計:<%= cart_item.product.price * cart_item.quantity_in_cart %>円
-              <% sum += cart_item.product.price * cart_item.quantity_in_cart%>
-          <% elsif cart_item.quantity_in_cart > cart_item.product.stock_quantity %>
+              小計:<%= cart_item.price_in_cart * cart_item.quantity_in_cart %>円
+              <% sum += cart_item.price_in_cart * cart_item.quantity_in_cart%>
+          <% else %>
               <font color=Red>在庫数が購入希望数（<%= cart_item.quantity_in_cart %>個）以下です。
               現在の在庫数は<%= cart_item.product.stock_quantity %>個です。</font>
               <% error += 1 %>
           <% end %>
     <% end %>
   </ul>
-  合計 <%= sum %>円
-
-  <% if error == 0%>
-    <%= form_for @order do |f| %>
-      <%= hidden_field_tag 'token', @long_token%>
-      <%= f.label "送付先の住所選択" %>
-      <%= f.collection_select :address_text, @addresses, :address_text, :address_text%>
-      <%= f.submit "注文を確定する" %>
+  <% if sum == 0 %>
+    You don't have any items. Please check <%= link_to "Our items", root_url %>
+  <% else %>
+    合計 <%= sum %>円
+    <% if error == 0%>
+      <%= form_for @order do |f| %>
+        <%= hidden_field_tag 'token', @long_token%>
+        <%= f.label "送付先の住所選択" %>
+        <%= f.collection_select :address_text, @addresses, :address_text, :address_text%>
+        <%= f.submit "注文を確定する" %>
+      <% end %>
+    <% elsif error != 0%>
+      <font color=Red>商品の在庫数が希望購入数以下であるため、注文できません。
+      該当商品を削除するか、希望購入数を在庫数以下に変更してください。</font>
     <% end %>
-  <% elsif error != 0%>
-    <font color=Red>商品の在庫数が希望購入数以下であるため、注文できません。
-    該当商品を削除するか、希望購入数を在庫数以下に変更してください。</font>
   <% end %>
-
 </h5>

@@ -9,12 +9,21 @@
     <% @cart_items.includes(:product).each do |cart_item| %>
       <li>
         <%= link_to cart_item.product.title, cart_item.product %>
-        価格: <%= cart_item.product.price %>円
+          <% if cart_item.price_in_cart == cart_item.product.price %>
+              価格: <%= cart_item.price_in_cart %>円
+          <% else %>
+              <font color=Red>
+              変更前価格: <%= cart_item.price_in_cart %>円
+              変更後価格: <%= cart_item.product.price %>円
+              </font>
+              <% cart_item.update_attribute(:price_in_cart, cart_item.product.price) %>
+          <% end %>
+
           <% if cart_item.quantity_in_cart <= cart_item.product.stock_quantity %>
               購入希望数: <%= cart_item.quantity_in_cart %>個
               小計:<%= cart_item.product.price * cart_item.quantity_in_cart %>円
               <% sum += cart_item.product.price * cart_item.quantity_in_cart%>
-          <% elsif cart_item.quantity_in_cart > cart_item.product.stock_quantity %>
+          <% else %>
               <font color=Red>在庫数が購入希望数（<%= cart_item.quantity_in_cart %>個）以下です。
               現在の在庫数は<%= cart_item.product.stock_quantity %>個です。</font>
               <% error += 1 %>
@@ -25,6 +34,7 @@
 
         <% if cart_item.product.stock_quantity !=0 %>
             <%= form_for(cart_item) do |f| %>
+            <%= f.hidden_field :product_id, value: cart_item.product_id %>
 
             <%= f.text_field :quantity_in_cart, class: 'form-control'%>
             <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
@@ -35,7 +45,7 @@
     </ul>
     合計: <%= sum %>円
     <% if error == 0%>
-      <%= form_tag(confirmation_path) do %>
+      <%= form_tag((confirmation_path), method: :get) do %>
       <%= hidden_field_tag 'token', @long_token %>
       <%= submit_tag "注文内容確認" %>
       <% end %>
