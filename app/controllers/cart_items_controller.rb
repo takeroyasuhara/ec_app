@@ -1,4 +1,7 @@
 class CartItemsController < ApplicationController
+  before_action :signed_in_user
+  before_action :correct_user, only: :destroy
+
   def create
     product = Product.find(params[:cart_item][:product_id])
     asking_quantity = params[:cart_item][:quantity_in_cart].to_i
@@ -26,30 +29,24 @@ class CartItemsController < ApplicationController
   end
 
   def index
-    if current_user.nil?
-      flash[:warning] = "サインインしてください！"
-      return redirect_to signin_path
-    else
-      @cart_items = current_user.cart_items
-      connect_token = ""
-      @cart_items.includes(:product).each do |cart_item|
-        if cart_item.price_in_cart != cart_item.product.price
-          flash.now[:warning] = "#{cart_item.product.title}の価格が
-          #{cart_item.price_in_cart}円から#{cart_item.product.price}円に変わりました！"
-          cart_item.price_in_cart = cart_item.product.price
-          cart_item.save
-        end
-        connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)
+    @cart_items = current_user.cart_items
+    connect_token = ""
+    @cart_items.includes(:product).each do |cart_item|
+      if cart_item.price_in_cart != cart_item.product.price
+        flash.now[:warning] = "#{cart_item.product.title}の価格が
+        #{cart_item.price_in_cart}円から#{cart_item.product.price}円に変わりました！"
+        cart_item.price_in_cart = cart_item.product.price
+        cart_item.save
       end
-      @long_token = CartItem.encrypt(connect_token)
+      connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)
     end
+    @long_token = CartItem.encrypt(connect_token)
   end
 
   def destroy
-    cart_item = CartItem.find(params[:id])
+    @cart_item.destroy
     flash[:success] = "カートから#{cart_item.product.title}を削除しました！"
-    cart_item.destroy
-    return redirect_to cart_items_path
+    redirect_to cart_items_path
   end
 
   def update
@@ -74,5 +71,12 @@ class CartItemsController < ApplicationController
     @long_token = CartItem.encrypt(connect_token)
     return redirect_to cart_items_path
   end
+
+  private
+    def correct_user
+      @cart_item = current_user.cart_items.find(id: params[:id])
+    rescue
+      redirect_to root_url
+    end
 
 end
