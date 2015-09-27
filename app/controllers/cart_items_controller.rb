@@ -51,15 +51,17 @@ class CartItemsController < ApplicationController
     origin_quantity = cart_item.quantity_in_cart
     asking_quantity = params[:cart_item][:quantity_in_cart].to_i
     cart_item.quantity_in_cart = asking_quantity
-    if asking_quantity <= cart_item.product.stock_quantity && cart_item.save
+
+    if asking_quantity > cart_item.product.stock_quantity
+      flash[:danger] = "#{cart_item.product.title}は在庫数が不足しています！
+                        #{cart_item.product.title}は#{cart_item.product.stock_quantity}個まで購入できます."
+    elsif !cart_item.save
+      flash[:danger] = "購入希望数に1以上の整数を半角入力してください."
+    else
       cart_item.create_lock_token
       flash[:success] = "#{cart_item.product.title}の希望購入数を
-      #{origin_quantity}個から#{asking_quantity}個に変更しました！"
-    else
-      flash[:danger] = "#{cart_item.product.title}は在庫数が不足しています！
-      #{cart_item.product.stock_quantity}個まで購入できます！"
+                        #{origin_quantity}個から#{asking_quantity}個に変更しました！"
     end
-
     @cart_items = current_user.cart_items
     connect_token = ""
     @cart_items.includes(:product).each do |cart_item|

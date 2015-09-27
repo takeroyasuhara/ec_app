@@ -36,7 +36,7 @@
             <%= form_for(cart_item) do |f| %>
             <%= f.hidden_field :product_id, value: cart_item.product_id %>
 
-            <%= f.text_field :quantity_in_cart, class: 'form-control'%>
+            <%= f.number_field :quantity_in_cart, class: 'form-control', min:1, max:30%>
             <%= f.submit "購入希望数を変更する", class: "btn btn-large btn-primary" %>
             <% end %>
        <% end %>
