@@ -21,7 +21,7 @@ class CartItem < ActiveRecord::Base
 
   def create_lock_token
     lock_token = CartItem.encrypt(CartItem.new_token)
-    update_attribute(:lock_token, lock_token)
+    self.lock_token = lock_token
   end
 
   def forget
