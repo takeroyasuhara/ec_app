@@ -32,7 +32,7 @@ class CartItemsController < ApplicationController
     @cart_items = current_user.cart_items
     connect_token = ""
     @cart_items.includes(:product).each do |cart_item|
-      if cart_item.price_in_cart != cart_item.product.price && cart_item.price_in_cart != 0
+        if cart_item.price_in_cart != cart_item.product.price && cart_item.price_in_cart != 0
         flash.now[:warning] = "カート内の商品価格に変更がありました。カート内の商品を確認ください！"
       end
       connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)

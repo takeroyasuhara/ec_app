@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(version: 20150910051836) do
     t.datetime "updated_at",                     null: false
   end
 
+  add_index "cart_items", ["lock_token"], name: "index_cart_items_on_lock_token"
   add_index "cart_items", ["user_id", "product_id"], name: "index_cart_items_on_user_id_and_product_id", unique: true
 
   create_table "order_items", force: :cascade do |t|
@@ -70,5 +71,6 @@ ActiveRecord::Schema.define(version: 20150910051836) do
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
+  add_index "users", ["remember_digest"], name: "index_users_on_remember_digest", unique: true
 
 end

@@ -9,7 +9,7 @@ class CreateCartItems < ActiveRecord::Migration
 
       t.timestamps null: false
       t.index [:user_id, :product_id], unique: true
-      t.index  :lock_token, unique: true
+      t.index  :lock_token
     end
   end
 end

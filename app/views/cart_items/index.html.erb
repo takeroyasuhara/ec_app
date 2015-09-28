@@ -12,11 +12,15 @@
           <% if cart_item.price_in_cart == cart_item.product.price %>
               価格: <%= cart_item.price_in_cart %>円
           <% else %>
+            <% if cart_item.price_in_cart == 0 %>
+              価格: <%= cart_item.product.price %>円
+            <% else %>
               <font color=Red>
               変更前価格: <%= cart_item.price_in_cart %>円
               変更後価格: <%= cart_item.product.price %>円
               </font>
-              <% cart_item.update_attribute(:price_in_cart, cart_item.product.price) %>
+            <% end %>
+            <% cart_item.update_attribute(:price_in_cart, cart_item.product.price) %>
           <% end %>
 
           <% if cart_item.quantity_in_cart <= cart_item.product.stock_quantity %>
