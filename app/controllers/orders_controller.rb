@@ -1,4 +1,5 @@
 class OrdersController < ApplicationController
+  before_action :signed_in_user
 
   def new
     @cart_items = current_user.cart_items
@@ -25,17 +26,16 @@ class OrdersController < ApplicationController
 
 
   def create
-    @cart_items = current_user.cart_items
-    connect_token = ""
-    @cart_items.includes(:product).each do |cart_item|
-      connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)
-    end
-    @long_token = CartItem.encrypt(connect_token)
-    if params[:token] != @long_token
-      return redirect_to confirmation_path
-    end
-
     ActiveRecord::Base.transaction do
+      @cart_items = current_user.cart_items.lock
+      connect_token = ""
+      @cart_items.includes(:product).each do |cart_item|
+        connect_token += (cart_item.lock_token + cart_item.quantity_in_cart.to_s + cart_item.product.price.to_s)
+      end
+      @long_token = CartItem.encrypt(connect_token)
+      if params[:token] != @long_token
+        return redirect_to confirmation_path
+      end
       @order = Order.create(address_text: params[:order][:address_text])
       order_items = []
       @cart_items.order('product_id').each do |cart_item|
