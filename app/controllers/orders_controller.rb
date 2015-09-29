@@ -38,7 +38,6 @@ class OrdersController < ApplicationController
     ActiveRecord::Base.transaction do
       @order = Order.create(address_text: params[:order][:address_text])
       order_items = []
-      items = []
       @cart_items.order('product_id').each do |cart_item|
         product = Product.lock.find(cart_item.product_id)
         order_item = OrderItem.new(user_id: current_user.id, product_id: product.id,
